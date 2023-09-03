@@ -1,5 +1,6 @@
 package com.example.jasonrng
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -7,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
+import com.google.gson.Gson
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
@@ -20,17 +22,18 @@ class MainActivity : AppCompatActivity() {
         var textView = findViewById<TextView>(R.id.textView3)
         var nextKid = findViewById<Button>(R.id.nextKid)
         var kidNumberText = findViewById<TextView>(R.id.textView4)
+        var seeTables = findViewById<Button>(R.id.seeTables)
 
         var tables = arrayListOf<ArrayList<String>>()
         var numberOfKids:Int = 0
         var sizeNumber:Int = 0
 
+        textView.text = "Enter the kids and tables\nPress start to begin"
 
-
-        goButton.setOnClickListener {
+        fun startRNG() {
             tables = arrayListOf<ArrayList<String>>()
 
-            textView.text = "Kid "+ kidsText.text.toString() + " goes to table "+ tablesText.text.toString()
+            textView.text = "Go to table\n"+ tablesText.text.toString()
             //println(numberOfKids)
 
             numberOfKids = Integer.parseInt(kidsText.text.toString())
@@ -54,12 +57,12 @@ class MainActivity : AppCompatActivity() {
                 firstLoopLimit = 0
             }
 
-            textView.text = "The table list looks like this: $tables"
+            textView.text = "Click Next Kid to proceed"
             nextKid.isClickable = true
         }
 
-        nextKid.setOnClickListener {
 
+        fun sendNextKid(){
             var availableTables = tables.filter { it.size < sizeNumber }
 
             if (availableTables.isNotEmpty()){
@@ -68,7 +71,7 @@ class MainActivity : AppCompatActivity() {
 
                 assignedTable.add("Kid $numberOfKids")
 
-                textView.text = "Kid $numberOfKids goes to table ${tables.indexOf(assignedTable) + 1}"
+                textView.text = "Kid $numberOfKids\n Go to table\n ${tables.indexOf(assignedTable) + 1}"
                 //textView.text = tables.toString()
                 numberOfKids--
                 kidNumberText.text = "Kids left: $numberOfKids"
@@ -77,8 +80,9 @@ class MainActivity : AppCompatActivity() {
             else if(numberOfKids<=0){
 
                 kidNumberText.text = "Kids left: 0"
-                textView.text = "All tables are full: $tables"
+                textView.text = "All tables are full!\nPress start to start again."
 
+                //sendTablesToListView()
             }
 
             else{
@@ -89,14 +93,43 @@ class MainActivity : AppCompatActivity() {
                     var randomNumber = Random.nextInt(0,availableTablesForOthers.size)
                     var assignedTableForOthers = availableTablesForOthers[randomNumber]
                     assignedTableForOthers.add("Kid $numberOfKids")
-                    textView.text = "Kid $numberOfKids goes to table ${tables.indexOf(assignedTableForOthers) + 1}"
+                    textView.text = "Kid $numberOfKids\nGo to table\n ${tables.indexOf(assignedTableForOthers) + 1}"
                     numberOfKids--
                     kidNumberText.text = "Kids left: $numberOfKids"
                 }
 
             }
-
         }
 
+        fun sendTablesToListView(){
+            var gson = Gson()
+            var dataListJson = gson.toJson(tables)
+
+            var intent = Intent(this, ListView::class.java)
+            intent.putExtra("tables", dataListJson)
+        }
+
+        fun goToListView(){
+            var intent2 = Intent(this, ListView::class.java)
+            startActivity(intent2)
+        }
+
+
+        goButton.setOnClickListener {
+            startRNG()
+        }
+
+        nextKid.setOnClickListener {
+            sendNextKid()
+        }
+
+        seeTables.setOnClickListener {
+            goToListView()
+        }
+
+
+
     }
+
+
 }
