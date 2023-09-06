@@ -1,15 +1,19 @@
 package com.example.jasonrng
 
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.gson.Gson
 import kotlin.random.Random
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,10 +27,21 @@ class MainActivity : AppCompatActivity() {
         var nextKid = findViewById<Button>(R.id.nextKid)
         var kidNumberText = findViewById<TextView>(R.id.textView4)
         var seeTables = findViewById<Button>(R.id.seeTables)
+        var layout = findViewById<ConstraintLayout>(R.id.constraintLayout)
+        var kidHeadline = findViewById<TextView>(R.id.kidNumberHeadLineTextView)
+        var tablesHeadline = findViewById<TextView>(R.id.tablesNumberHeadLineTextView)
 
         var tables = arrayListOf<ArrayList<String>>()
         var numberOfKids:Int = 0
         var sizeNumber:Int = 0
+        var clicked = 0
+
+        layout.setBackgroundColor(Color.parseColor("#121212"))
+        tablesHeadline.setTextColor(Color.parseColor("#F8F8F8"))
+        kidHeadline.setTextColor(Color.parseColor("#F8F8F8"))
+        kidsText.setTextColor(Color.parseColor("#F8F8F8"))
+        tablesText.setTextColor(Color.parseColor("#F8F8F8"))
+        kidNumberText.setTextColor(Color.parseColor("#F8F8F8"))
 
         textView.text = "Enter the kids and tables\nPress start to begin"
 
@@ -36,9 +51,14 @@ class MainActivity : AppCompatActivity() {
             textView.text = "Go to table\n"+ tablesText.text.toString()
             //println(numberOfKids)
 
-            numberOfKids = Integer.parseInt(kidsText.text.toString())
-            var tableNumber = Integer.parseInt(tablesText.text.toString())
-            sizeNumber = numberOfKids/tableNumber
+            numberOfKids = kidsText.text.toString().toIntOrNull() ?: 0
+            var tableNumber = tablesText.text.toString().toIntOrNull() ?: 0
+
+            sizeNumber = if (tableNumber != 0) {
+                numberOfKids / tableNumber
+            } else {
+                0
+            }
 
             textView.text = "The size of kids per table is: $sizeNumber"
             kidNumberText.text = "Kids left: $numberOfKids"
@@ -81,6 +101,7 @@ class MainActivity : AppCompatActivity() {
 
                 kidNumberText.text = "Kids left: 0"
                 textView.text = "All tables are full!\nPress start to start again."
+                nextKid.isClickable = false
 
                 //sendTablesToListView()
             }
@@ -114,13 +135,32 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent2)
         }
 
+        fun changeBackground(){
+            clicked+=1
+            if (clicked>2){
+                clicked = 1
+            }
+            when(clicked){
+                1 -> {
+                    textView.setTextColor(Color.parseColor("#F8F8F8"))
+
+                }
+
+                2 -> {
+                    textView.setTextColor(Color.parseColor("#6495ED"))
+                }
+            }
+        }
+
 
         goButton.setOnClickListener {
             startRNG()
+
         }
 
         nextKid.setOnClickListener {
             sendNextKid()
+            changeBackground()
         }
 
         seeTables.setOnClickListener {
